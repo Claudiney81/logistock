@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Cadastrar Tipos de Serviço</h2>
+
+  <!-- Mensagens -->
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ category }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- Formulário de cadastro -->
+  <form method="POST" class="row g-3 mb-4">
+    <div class="col-md-6">
+      <label for="nome" class="form-label">Nome do Tipo de Serviço</label>
+      <input type="text" name="nome" id="nome" class="form-control" required />
+    </div>
+    <div class="col-md-6">
+      <label for="empresa" class="form-label"
+        >Empresa (somente para registro)</label
+      >
+      <input type="text" name="empresa" id="empresa" class="form-control" />
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </div>
+  </form>
+
+  <!-- Lista de tipos cadastrados -->
+  <h4 class="mt-4">Tipos de Serviço Cadastrados</h4>
+  {% if tipos %}
+  <table class="table table-bordered table-striped mt-2">
+    <thead class="table-dark">
+      <tr>
+        <th>Nome</th>
+        <th>Empresa (registro)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tipo in tipos %}
+      <tr>
+        <td>{{ tipo.nome }}</td>
+        <td>{{ tipo.empresa }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">Nenhum tipo de serviço cadastrado.</p>
+  {% endif %}
+</div>
+{% endblock %}

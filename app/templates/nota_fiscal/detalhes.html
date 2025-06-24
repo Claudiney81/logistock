@@ -1,0 +1,52 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Detalhes da Nota Fiscal</h2>
+
+  <!-- Dados da Nota -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Número da Nota:</strong> {{ nota.numero_nf }}</p>
+      <p><strong>Reserva:</strong> {{ nota.reserva or '—' }}</p>
+      <p><strong>Tipo de Serviço:</strong> {{ nota.tipo_servico or '—' }}</p>
+      <p><strong>Responsável:</strong> {{ nota.responsavel }}</p>
+      <p>
+        <strong>Data/Hora:</strong> {{ nota.data_hora.strftime('%d/%m/%Y %H:%M')
+        }}
+      </p>
+      <p><strong>Observações:</strong> {{ nota.observacao or '—' }}</p>
+    </div>
+  </div>
+
+  <!-- Itens da Nota -->
+  <h4>Itens da Nota</h4>
+  <table class="table table-bordered table-hover">
+    <thead class="table-secondary">
+      <tr>
+        <th>Código</th>
+        <th>Descrição</th>
+        <th>Unidade</th>
+        <th>Quantidade</th>
+        <th>Valor Unitário (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in nota.itens %}
+      <tr>
+        <td>{{ item.item.codigo }}</td>
+        <td>{{ item.item.descricao }}</td>
+        <td>{{ item.item.unidade }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ "%.2f"|format(item.valor_unitario) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Botão de retorno -->
+  <a
+    href="{{ url_for('nota_fiscal.historico') }}"
+    class="btn btn-secondary mt-3"
+    >Voltar ao Histórico</a
+  >
+</div>
+{% endblock %}

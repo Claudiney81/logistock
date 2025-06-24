@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Requisições Recebidas</h2>
+
+  {% if pendentes_count > 0 %}
+    <div class="alert alert-danger">
+      Existem {{ pendentes_count }} requisições pendentes!
+    </div>
+  {% endif %}
+
+  <div class="mb-3">
+    <a href="{{ url_for('estoque.exportar_requisicoes_recebidas', formato='excel') }}" class="btn btn-success">Exportar Excel</a>
+    <a href="{{ url_for('estoque.exportar_requisicoes_recebidas', formato='pdf') }}" class="btn btn-danger">Exportar PDF</a>
+  </div>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Técnico</th>
+        <th>Data/Hora</th>
+        <th>Status</th>
+        <th>Observação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requisicoes %}
+      <tr class="{% if req.status == 'pendente' %}table-warning{% elif req.status == 'separada' %}table-info{% elif req.status == 'atendida' %}table-success{% endif %}">
+        <td>{{ req.id }}</td>
+        <td>{{ req.tecnico }}</td>
+        <td>{{ req.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ req.status|capitalize }}</td>
+        <td>{{ req.observacao or '' }}</td>
+        <td>
+          <a href="{{ url_for('estoque.editar_requisicao_recebida', id=req.id) }}" class="btn btn-primary btn-sm">Editar</a>
+          {% if req.status != 'atendida' %}
+          <form method="POST" action="{{ url_for('estoque.finalizar_requisicao', id=req.id) }}" style="display:inline;" onsubmit="return confirm('Finalizar esta requisição?');">
+            <button type="submit" class="btn btn-success btn-sm">Finalizar</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="text-center">Nenhuma requisição encontrada.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

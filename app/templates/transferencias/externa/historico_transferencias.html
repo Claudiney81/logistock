@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h2>Histórico de Transferências</h2>
+
+  <!-- Bloco para exibir mensagens flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="msg-container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Formulário de filtro por empresa -->
+  <form method="get" class="mb-3 d-flex gap-2 align-items-end">
+    <div>
+      <label for="empresa_id" class="form-label mb-0">Empresa</label>
+      <select name="empresa_id" id="empresa_id" class="form-select form-select-sm" style="min-width:220px;">
+        <option value="">Todas as Empresas</option>
+        {% for empresa in empresas %}
+        <option value="{{ empresa.id }}"
+          {% if empresa.id|string == request.args.get('empresa_id', '') %}selected{% endif %}>
+          {{ empresa.razao_social }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm mb-1">Pesquisar</button>
+  </form>
+
+  <table class="table table-striped mt-2">
+    <thead class="table-dark">
+      <tr>
+        <th>Nº</th>
+        <th>Empresa</th>
+        <th>Data</th>
+        <th>Responsável</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transferencia in transferencias %}
+      <tr>
+        <td>{{ transferencia.id }}</td>
+        <td>{{ transferencia.empresa.razao_social }}</td>
+        <td>{{ transferencia.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ transferencia.autorizado_por }}</td>
+        <td>
+          <a
+            href="{{ url_for('transferencia_externa.detalhes_transferencia_externa', id=transferencia.id) }}"
+            class="btn btn-sm btn-outline-primary"
+            title="Visualizar Detalhes"
+          >
+            👁️ Visualizar
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          Nenhuma transferência encontrada.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Script para esconder a mensagem flash após 3 segundos -->
+<script>
+  setTimeout(function() {
+    var msg = document.getElementById('msg-container');
+    if (msg) { msg.style.display = 'none'; }
+  }, 3000);
+</script>
+
+{% endblock %}

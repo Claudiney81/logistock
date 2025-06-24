@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Detalhes da Requisição #{{ requisicao.id }}</h2>
+
+  <div class="mb-4">
+    <p><strong>Responsável:</strong> {{ requisicao.solicitante_responsavel }}</p>
+    <p><strong>Técnico:</strong> {{ requisicao.solicitante_tecnico }}</p>
+    <p><strong>Tipo de Serviço (da requisição):</strong> {{ requisicao.tipo_servico }}</p>
+    <p><strong>Data/Hora:</strong> {{ requisicao.data_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+    <p><strong>Observação:</strong> {{ requisicao.observacao or '-' }}</p>
+  </div>
+
+  <h5>Itens da Requisição</h5>
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Descrição</th>
+        <th>Quantidade</th>
+        <th>Unidade</th>
+        <th>Tipo de Serviço</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in requisicao.itens %}
+      <tr>
+        <td>{{ item.codigo }}</td>
+        <td>{{ item.descricao }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ item.unidade }}</td>
+        <td>{{ requisicao.tipo_servico }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- formulário de atualização / finalização -->
+  <form method="post" class="mt-4">
+    {% if current_user.perfil in ['estoque', 'admin'] %}
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Status:</label>
+          <select name="status" class="form-select" required>
+            <option value="pendente" {% if requisicao.status == 'pendente' %}selected{% endif %}>Pendente</option>
+            <option value="material_entregue" {% if requisicao.status == 'material_entregue' %}selected{% endif %}>Material Entregue</option>
+            <option value="recusada" {% if requisicao.status == 'recusada' %}selected{% endif %}>Recusada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Observação do Estoque:</label>
+        <textarea name="observacao_estoque" class="form-control" rows="3">{{ requisicao.observacao_estoque }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-success">
+        {% if requisicao.status == 'pendente' %}Finalizar Requisição{% else %}Salvar Alterações{% endif %}
+      </button>
+    {% endif %}
+    <a href="{{ url_for('requisicoes_tecnicos.historico') }}" class="btn btn-secondary ms-2">Voltar</a>
+  </form>
+</div>
+{% endblock %}

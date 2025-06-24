@@ -1,0 +1,320 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Nova Transferência Externa</h2>
+
+  <form
+    id="formTransferencia"
+    method="POST"
+    action="{{ url_for('transferencia_externa.registrar_transferencia_externa') }}"
+  >
+    <fieldset class="border p-3 mb-4">
+      <legend class="w-auto px-2">Dados da Empresa</legend>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <label for="empresa_id">Razão Social</label>
+          <select
+            id="empresa_id"
+            name="empresa_id"
+            class="form-select form-select-sm"
+            required
+          >
+            <option value="">Selecione uma empresa</option>
+            {% for empresa in empresas %}
+            <option
+              value="{{ empresa.id }}"
+              data-cnpj="{{ empresa.cnpj }}"
+              data-endereco="{{ empresa.endereco }}"
+              data-contato="{{ empresa.contato }}"
+            >
+              {{ empresa.razao_social }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label>CNPJ</label>
+          <input
+            type="text"
+            id="cnpj"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-3">
+          <label>Endereço</label>
+          <input
+            type="text"
+            id="endereco"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-2">
+          <label>Contato</label>
+          <input
+            type="text"
+            id="contato"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-2">
+          <label>Tipo de Serviço</label>
+          <select
+            id="tipo_servico"
+            name="tipo_servico"
+            class="form-select form-select-sm"
+            required
+          >
+            <option value="">Selecione o tipo de serviço</option>
+            {% for tipo in tipos_servico %}
+            <option value="{{ tipo.nome }}">{{ tipo.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2 mt-2">
+        <div class="col-md-3">
+          <label>Autorizado por</label>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="autorizado_por"
+            required
+          />
+        </div>
+        <div class="col-md-3">
+          <label>Retirado por</label>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="retirado_por"
+            required
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="border p-3 mb-4">
+      <legend class="w-auto px-2">Itens da Transferência</legend>
+      <div class="row g-2">
+        <div class="col-md-2">
+          <label>Código</label>
+          <input
+            type="text"
+            id="codigoItem"
+            class="form-control form-control-sm"
+            autocomplete="off"
+            placeholder="Digite o código"
+          />
+        </div>
+        <div class="col-md-3">
+          <label>Descrição</label>
+          <input
+            type="text"
+            id="descricaoItem"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-2">
+          <label>Unidade</label>
+          <input
+            type="text"
+            id="unidadeItem"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-2">
+          <label>Quantidade</label>
+          <input
+            type="number"
+            id="quantidadeItem"
+            class="form-control form-control-sm"
+            placeholder=""
+          />
+        </div>
+        <div class="col-md-2">
+          <label>Valor</label>
+          <input
+            type="text"
+            id="valorItem"
+            class="form-control form-control-sm"
+            readonly
+          />
+        </div>
+        <div class="col-md-1 d-grid align-items-end">
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            id="btnInserirItem"
+          >
+            Inserir
+          </button>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="mt-2">
+      <table
+        id="itensTransferencia"
+        class="table table-sm table-bordered"
+        style="display: none"
+      >
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Unidade</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <input type="hidden" name="itens_json" id="itens_json" />
+
+    <div class="d-flex gap-2 mt-3">
+      <button type="submit" class="btn btn-primary btn-sm">
+        Registrar Transferência
+      </button>
+      <button type="button" class="btn btn-outline-dark btn-sm">
+        Visualizar / Imprimir
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Atualiza os dados da empresa ao selecionar
+  document.getElementById("empresa_id").addEventListener("change", function () {
+    const selected = this.options[this.selectedIndex];
+    document.getElementById("cnpj").value = selected.dataset.cnpj || "";
+    document.getElementById("endereco").value = selected.dataset.endereco || "";
+    document.getElementById("contato").value = selected.dataset.contato || "";
+  });
+
+  let saldoDisponivelAtual = 0;
+
+  // Busca dados do item e atualiza campos
+  document.getElementById("codigoItem").addEventListener("blur", function () {
+    let codigo = this.value.trim().toUpperCase();
+    this.value = codigo;
+
+    if (!codigo) {
+      limparCamposItem();
+      return;
+    }
+
+    fetch(`/itens/buscar_item?codigo=${encodeURIComponent(codigo)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.erro) {
+          alert(data.erro);
+          limparCamposItem();
+        } else {
+          document.getElementById("descricaoItem").value = data.descricao;
+          document.getElementById("unidadeItem").value = data.unidade;
+          document.getElementById("valorItem").value = data.valor;
+          document.getElementById(
+            "quantidadeItem"
+          ).placeholder = `Saldo disponível: ${data.quantidade}`;
+          saldoDisponivelAtual = data.quantidade;
+        }
+      })
+      .catch(() => {
+        alert("Erro ao buscar item!");
+        limparCamposItem();
+      });
+  });
+
+  function limparCamposItem() {
+    document.getElementById("descricaoItem").value = "";
+    document.getElementById("unidadeItem").value = "";
+    document.getElementById("valorItem").value = "";
+    document.getElementById("quantidadeItem").value = "";
+    document.getElementById("quantidadeItem").placeholder = "";
+    saldoDisponivelAtual = 0;
+  }
+
+  // Inserir item na tabela
+  document
+    .getElementById("btnInserirItem")
+    .addEventListener("click", function (e) {
+      e.preventDefault();
+      const codigo = document.getElementById("codigoItem").value.trim();
+      const descricao = document.getElementById("descricaoItem").value.trim();
+      const unidade = document.getElementById("unidadeItem").value.trim();
+      const quantidade = document.getElementById("quantidadeItem").value.trim();
+      const valor = document.getElementById("valorItem").value.trim();
+
+      if (!codigo || !descricao || !unidade || !quantidade || !valor) {
+        alert("Preencha todos os campos do item!");
+        return;
+      }
+
+      if (saldoDisponivelAtual && Number(quantidade) > saldoDisponivelAtual) {
+        alert("Quantidade maior que saldo disponível!");
+        return;
+      }
+
+      const tabela = document.getElementById("itensTransferencia");
+      const tbody = tabela.querySelector("tbody");
+      tabela.style.display = "";
+
+      const linha = document.createElement("tr");
+      linha.innerHTML = `
+      <td>${codigo}</td>
+      <td>${descricao}</td>
+      <td>${unidade}</td>
+      <td>${quantidade}</td>
+      <td>${valor}</td>
+      <td><button type="button" class="btn btn-link btn-sm text-danger remover-item">Excluir</button></td>
+    `;
+      tbody.appendChild(linha);
+
+      linha
+        .querySelector(".remover-item")
+        .addEventListener("click", function () {
+          linha.remove();
+          if (tbody.children.length === 0) {
+            tabela.style.display = "none";
+          }
+        });
+
+      limparCamposItem();
+    });
+
+  // Antes de enviar o formulário, prepara o JSON com os itens
+  document
+    .getElementById("formTransferencia")
+    .addEventListener("submit", function (e) {
+      const tabela = document.getElementById("itensTransferencia");
+      const tbody = tabela.querySelector("tbody");
+      const linhas = tbody.querySelectorAll("tr");
+      const itens = [];
+      linhas.forEach((linha) => {
+        const tds = linha.querySelectorAll("td");
+        itens.push({
+          codigo: tds[0].innerText,
+          descricao: tds[1].innerText,
+          unidade: tds[2].innerText,
+          quantidade: tds[3].innerText,
+          valor: tds[4].innerText,
+        });
+      });
+      document.getElementById("itens_json").value = JSON.stringify(itens);
+      if (itens.length === 0) {
+        alert("Adicione pelo menos um item na transferência!");
+        e.preventDefault();
+        return false;
+      }
+    });
+</script>
+
+{% endblock %}

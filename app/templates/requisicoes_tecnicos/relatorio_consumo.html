@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Relatório de Consumo Técnico</h2>
+  <form method="POST" class="row g-3">
+    <div class="col-md-3">
+      <label for="tecnico" class="form-label">Técnico</label>
+      <select name="tecnico" id="tecnico" class="form-select">
+        <option value="todos">Todos</option>
+        {% for t in tecnicos %}
+        <option value="{{ t.nome }}" {% if request.form.get('tecnico') == t.nome %}selected{% endif %}>{{ t.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="codigo_item" class="form-label">Código do Item</label>
+      <input type="text" name="codigo_item" id="codigo_item" class="form-control" placeholder="Ex: 123456" value="{{ request.form.get('codigo_item', '') }}">
+    </div>
+    <div class="col-md-3">
+      <label for="data_inicio" class="form-label">Data Início</label>
+      <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ request.form.get('data_inicio', '') }}">
+    </div>
+    <div class="col-md-3">
+      <label for="data_fim" class="form-label">Data Fim</label>
+      <input type="date" name="data_fim" id="data_fim" class="form-control" value="{{ request.form.get('data_fim', '') }}">
+    </div>
+    <div class="col-md-12 text-end">
+      <button type="submit" class="btn btn-primary">Buscar</button>
+      <button type="submit" formaction="/requisicoes_tecnicos/relatorio-consumo/exportar-excel" class="btn btn-success">Exportar Excel</button>
+    </div>
+  </form>
+
+  <hr>
+
+  {% if resultados %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Técnico</th>
+          <th>Código</th>
+          <th>Descrição</th>
+          <th>Unidade</th>
+          <th>Quantidade</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set atual = None %}
+        {% set subtotal = 0 %}
+        {% for r in resultados %}
+          {% set chave = r.nome_tecnico ~ r.codigo %}
+          {% if atual != chave and not loop.first %}
+            <tr class="table-secondary fw-bold">
+              <td colspan="4">Subtotal</td>
+              <td colspan="2">{{ subtotal }}</td>
+            </tr>
+            {% set subtotal = 0 %}
+          {% endif %}
+          <tr>
+            <td>{{ r.nome_tecnico }}</td>
+            <td>{{ r.codigo }}</td>
+            <td>{{ r.descricao }}</td>
+            <td>{{ r.unidade }}</td>
+            <td>{{ r.quantidade_total }}</td>
+            <td>-</td>
+          </tr>
+          {% set subtotal = subtotal + r.quantidade_total %}
+          {% set atual = chave %}
+          {% if loop.last %}
+            <tr class="table-secondary fw-bold">
+              <td colspan="4">Subtotal</td>
+              <td colspan="2">{{ subtotal }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">Nenhum dado encontrado para os filtros informados.</p>
+  {% endif %}
+</div>
+{% endblock %}

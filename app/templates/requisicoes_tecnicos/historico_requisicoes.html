@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">
+    {% if f_status == 'pendente' %}
+      📥 Requisições Recebidas – Estoque
+    {% else %}
+      📄 Histórico de Requisições – Técnicos
+    {% endif %}
+  </h2>
+
+  {# mensagens flash #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <table class="table table-bordered align-middle">
+    <thead class="table-light text-center">
+      <tr>
+        <th>ID</th>
+        <th>Responsável</th>
+        <th>Técnico</th>
+        <th>Tipo de Serviço</th>
+        <th>Status</th>
+        <th>Data/Hora</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requisicoes %}
+        <tr>
+          <td class="text-center">{{ req.id }}</td>
+          <td>{{ req.solicitante_responsavel }}</td>
+          <td>{{ req.solicitante_tecnico }}</td>
+          <td>{{ req.tipo_servico }}</td>
+          <td class="text-center text-capitalize">{{ req.status }}</td>
+          <td class="text-center">{{ req.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td class="text-center">
+            <a href="{{ url_for('requisicoes_tecnicos.detalhes', requisicao_id=req.id) }}" class="btn btn-primary btn-sm">Ver detalhes</a>
+
+            {% if current_user.perfil == 'admin' %}
+              <form method="POST" action="{{ url_for('requisicoes_tecnicos.excluir', id=req.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm ms-1" onclick="return confirm('Tem certeza que deseja excluir esta requisição?')">Excluir</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="7" class="text-center">Nenhuma requisição encontrada.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

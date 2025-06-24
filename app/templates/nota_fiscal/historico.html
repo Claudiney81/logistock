@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Histórico de Notas Fiscais</h2>
+
+  <!-- Mensagem de feedback estilizada -->
+  <div class="d-flex justify-content-center">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} flash-message mt-2 mb-2 p-2 shadow-sm"
+               style="max-width: 340px; font-size: 1rem; text-align: center;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  <script>
+    setTimeout(function() {
+      let flashes = document.querySelectorAll('.flash-message');
+      flashes.forEach(el => el.style.display = 'none');
+    }, 3000);
+  </script>
+
+  <!-- Filtro por tipo de serviço -->
+  <form
+    method="GET"
+    action="{{ url_for('nota_fiscal.historico') }}"
+    class="row g-3 mb-3"
+  >
+    <div class="col-md-4">
+      <input
+        type="text"
+        class="form-control"
+        name="tipo_servico"
+        placeholder="Tipo de Serviço"
+        value="{{ tipo_servico }}"
+      />
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </form>
+
+  <!-- Tabela de notas -->
+  <table class="table table-bordered table-hover mt-3">
+    <thead class="table-dark">
+      <tr>
+        <th>Número</th>
+        <th>Data/Hora</th>
+        <th>Responsável</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nota in notas %}
+      <tr>
+        <td>{{ nota.numero_nf }}</td>
+        <td>{{ nota.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ nota.responsavel }}</td>
+        <td>
+          <a
+            href="{{ url_for('nota_fiscal.detalhes', id=nota.id) }}"
+            class="btn btn-sm btn-info me-2"
+            >Ver Detalhes</a
+          >
+          <form
+            method="POST"
+            action="{{ url_for('nota_fiscal.excluir_nota', id=nota.id) }}"
+            style="display: inline"
+            onsubmit="return confirm('Tem certeza que deseja excluir esta nota fiscal?');"
+          >
+            <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="text-center">Nenhuma nota fiscal encontrada.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

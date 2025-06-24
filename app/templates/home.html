@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <h1><i class="bi bi-box-seam"></i> Bem-vindo ao LogiStock</h1>
+  <p class="lead">Gestão de Materiais Telecom</p>
+  <a href="{{ url_for('estoque.saldo_estoque') }}" class="btn btn-primary mt-3">
+    Ver Saldo de Estoque
+  </a>
+</div>
+{% endblock %}

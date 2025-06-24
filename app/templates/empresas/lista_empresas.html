@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block content %}
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <h2 class="mb-4">Empresas Cadastradas</h2>
+
+    <!-- Formulário de busca -->
+    <form method="get" class="row g-3 mb-4">
+      <div class="col-md-5">
+        <input
+          type="text"
+          name="busca"
+          class="form-control"
+          placeholder="Buscar por Razão Social ou CNPJ"
+          value="{{ request.args.get('busca', '') }}"
+        />
+      </div>
+      <div class="col-md-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </div>
+    </form>
+
+    {% if empresas %}
+    <div class="table-responsive">
+      <table
+        class="table table-bordered table-hover table-striped align-middle"
+        style="font-size: 0.95rem"
+      >
+        <thead class="table-dark text-center">
+          <tr>
+            <th style="min-width: 180px">Razão Social</th>
+            <th class="text-nowrap">CNPJ</th>
+            <th style="min-width: 160px">Endereço</th>
+            <th class="text-nowrap">Contato</th>
+            <th class="text-nowrap">Serviço</th>
+            <th style="min-width: 200px">Observações</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for empresa in empresas %}
+          <tr>
+            <td>{{ empresa.razao_social }}</td>
+            <td class="text-nowrap">{{ empresa.cnpj }}</td>
+            <td>{{ empresa.endereco }}</td>
+            <td class="text-nowrap">{{ empresa.contato }}</td>
+            <td class="text-nowrap">{{ empresa.tipo_servico }}</td>
+            <td>{{ empresa.observacoes }}</td>
+            <td class="text-center" style="white-space: nowrap">
+              <div class="d-inline-flex gap-2">
+                <a
+                  href="{{ url_for('empresas.editar_empresa', id=empresa.id) }}"
+                  class="btn btn-sm btn-warning"
+                  >Editar</a
+                >
+                <form
+                  method="post"
+                  action="{{ url_for('empresas.excluir_empresa', id=empresa.id) }}"
+                  onsubmit="return confirm('Tem certeza que deseja excluir esta empresa?');"
+                >
+                  <button type="submit" class="btn btn-sm btn-danger">
+                    Excluir
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhuma empresa encontrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

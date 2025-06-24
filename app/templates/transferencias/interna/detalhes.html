@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Detalhes da Transferência Interna</h2>
+
+  <div class="mb-3">
+    <strong>Técnico:</strong> {{ transferencia.tecnico.nome }} ({{ transferencia.tecnico.matricula }})<br />
+    <strong>Área Técnica:</strong> {{ transferencia.area_tecnica }}<br />
+    <strong>Tipo de Serviço:</strong> {{ transferencia.tipo_servico.nome }}<br />
+    <strong>Data e Hora:</strong> {{ transferencia.data_hora.strftime('%d/%m/%Y %H:%M:%S') }}
+  </div>
+
+  <h5>Itens</h5>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Descrição</th>
+        <th>Unidade</th>
+        <th>Quantidade</th>
+        <th>Valor Unitário</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in transferencia.itens %}
+      <tr>
+        <td>{{ item.item.codigo }}</td>
+        <td>{{ item.item.descricao }}</td>
+        <td>{{ item.item.unidade }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ 'R$ %.2f' % item.valor_unitario }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{{ url_for('transferencias_interna.historico_transferencia_interna') }}" class="btn btn-secondary">Voltar ao Histórico</a>
+</div>
+{% endblock %}

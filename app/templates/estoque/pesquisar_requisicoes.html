@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Pesquisar Requisições Atendidas</h2>
+
+<form method="get" action="{{ url_for('estoque.pesquisar_requisicoes_atendidas') }}" class="row g-3 mb-3">
+  <div class="col-md-4">
+    <input type="text" name="tecnico" class="form-control" placeholder="Nome do Técnico" value="{{ tecnico }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Técnico</th>
+      <th>Data/Hora</th>
+      <th>Status</th>
+      <th>Observação</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in requisicoes %}
+    <tr>
+      <td>{{ req.id }}</td>
+      <td>{{ req.tecnico }}</td>
+      <td>{{ req.data_hora.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ req.status }}</td>
+      <td>{{ req.observacao }}</td>
+      <td>
+        <a href="{{ url_for('estoque.exportar_requisicao_atendida', id=req.id) }}" class="btn btn-success btn-sm">Exportar Excel</a>
+        <a href="{{ url_for('estoque.editar_requisicao_recebida', id=req.id) }}" class="btn btn-primary btn-sm">Editar</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6">Nenhuma requisição atendida encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

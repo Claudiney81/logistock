@@ -1,0 +1,41 @@
+/* === Estilo moderno azul da World Telecom === */
+
+body {
+  background-color: #f4f9ff;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+#sidebar {
+  background-color: #002b55 !important;
+}
+
+#sidebar .nav-link,
+#sidebar .dropdown-item {
+  color: #dce7f7;
+}
+
+#sidebar .nav-link:hover,
+#sidebar .dropdown-item:hover {
+  background-color: #004080;
+  color: white;
+}
+
+.navbar {
+  background-color: #004080 !important;
+  color: white;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar span {
+  color: white;
+  font-weight: 500;
+}
+
+/* Nome da empresa */
+#logo-nome {
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  color: #ffffff;
+}

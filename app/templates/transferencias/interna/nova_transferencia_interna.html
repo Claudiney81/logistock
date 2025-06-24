@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Nova Transferência Interna</h2>
+  <form method="POST" action="{{ url_for('transferencias_interna.nova_transferencia_interna') }}" autocomplete="off">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="tecnico_id" class="form-label">Técnico</label>
+        <select id="tecnico_id" name="tecnico_id" class="form-select" required>
+          <option value="">Selecione o técnico</option>
+          {% for tecnico in tecnicos %}
+          <option value="{{ tecnico.id }}">{{ tecnico.nome }} ({{ tecnico.matricula }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="area_tecnica" class="form-label">Área Técnica</label>
+        <input type="text" id="area_tecnica" name="area_tecnica" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label for="tipo_servico_id" class="form-label">Tipo de Serviço</label>
+        <select id="tipo_servico_id" name="tipo_servico_id" class="form-select" required>
+          <option value="">Selecione o tipo de serviço</option>
+          {% for ts in tipos_servico %}
+          <option value="{{ ts.id }}">{{ ts.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <h5>Itens da Transferência</h5>
+    <div style="overflow-x:auto;">
+      <table class="table table-bordered align-middle mb-0" id="tabela-itens" style="min-width:950px;">
+        <thead>
+          <tr>
+            <th style="background:#f8f9fa;">Código</th>
+            <th style="background:#f8f9fa;">Descrição</th>
+            <th style="background:#f8f9fa;">Unidade</th>
+            <th style="background:#f8f9fa;">Quantidade</th>
+            <th style="background:#f8f9fa;">Valor Unitário</th>
+            <th style="background:#f8f9fa;">Saldo</th>
+            <th style="background:#f8f9fa;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="py-1"><input type="text" name="codigo[]" class="form-control form-control-sm codigo-input" autocomplete="off" /></td>
+            <td class="py-1"><input type="text" name="descricao[]" class="form-control form-control-sm descricao-input" readonly /></td>
+            <td class="py-1"><input type="text" name="unidade[]" class="form-control form-control-sm unidade-input" readonly /></td>
+            <td class="py-1"><input type="number" name="quantidade[]" min="1" class="form-control form-control-sm" /></td>
+            <td class="py-1"><input type="number" name="valor_unitario[]" step="0.01" class="form-control form-control-sm valor-input" readonly /></td>
+            <td class="saldo-cell py-1"><span class="saldo-info"></span></td>
+            <td class="py-1">
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm" onclick="inserirLinha()" title="Inserir nova linha"><i class="bi bi-plus"></i> Inserir</button>
+                <button type="button" class="btn btn-danger btn-sm excluir-btn" style="opacity:0.5; pointer-events:none;" onclick="removerLinha(this, true)" title="Excluir linha" tabindex="-1"><i class="bi bi-x"></i> Excluir</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Registrar Transferência</button>
+  </form>
+</div>
+
+<script>
+  function buscarDadosItem(e) {
+    if (e.target.classList.contains('codigo-input')) {
+      const codigo = e.target.value.trim();
+      const tipo_servico_id = document.getElementById('tipo_servico_id').value;
+      const tr = e.target.closest('tr');
+
+      // Evita requisições com menos de 4 caracteres
+      if (codigo.length < 4 || !tipo_servico_id) {
+        tr.querySelector('.descricao-input').value = '';
+        tr.querySelector('.unidade-input').value = '';
+        tr.querySelector('.valor-input').value = '';
+        tr.querySelector('.saldo-info').innerText = '';
+        return;
+      }
+
+      fetch(`/transferencias/interna/api/item_saldo?codigo=${codigo}&tipo_servico_id=${tipo_servico_id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            tr.querySelector('.descricao-input').value = '';
+            tr.querySelector('.unidade-input').value = '';
+            tr.querySelector('.valor-input').value = '';
+            tr.querySelector('.saldo-info').innerText = '';
+            alert('Item não encontrado ou sem saldo para esse tipo de serviço.');
+            return;
+          }
+          tr.querySelector('.descricao-input').value = data.descricao;
+          tr.querySelector('.unidade-input').value = data.unidade;
+          tr.querySelector('.valor-input').value = parseFloat(data.valor).toFixed(2);
+          tr.querySelector('.saldo-info').innerText = data.saldo;
+        })
+        .catch(() => alert('Erro ao buscar item ou saldo.'));
+    }
+  }
+
+  document.querySelector('#tabela-itens tbody').addEventListener('change', buscarDadosItem);
+
+  function inserirLinha() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="py-1"><input type="text" name="codigo[]" class="form-control form-control-sm codigo-input" autocomplete="off" /></td>
+      <td class="py-1"><input type="text" name="descricao[]" class="form-control form-control-sm descricao-input" readonly /></td>
+      <td class="py-1"><input type="text" name="unidade[]" class="form-control form-control-sm unidade-input" readonly /></td>
+      <td class="py-1"><input type="number" name="quantidade[]" min="1" class="form-control form-control-sm" /></td>
+      <td class="py-1"><input type="number" name="valor_unitario[]" step="0.01" class="form-control form-control-sm valor-input" readonly /></td>
+      <td class="saldo-cell py-1"><span class="saldo-info"></span></td>
+      <td class="py-1">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-success btn-sm" onclick="inserirLinha()" title="Inserir nova linha"><i class="bi bi-plus"></i> Inserir</button>
+          <button type="button" class="btn btn-danger btn-sm excluir-btn" onclick="removerLinha(this, false)" title="Excluir linha"><i class="bi bi-x"></i> Excluir</button>
+        </div>
+      </td>
+    `;
+    tr.querySelector('.codigo-input').addEventListener('change', buscarDadosItem);
+    tbody.appendChild(tr);
+  }
+
+  function removerLinha(btn, isFirstLine) {
+    const tr = btn.closest('tr');
+    const tbody = tr.parentElement;
+    if (isFirstLine && tr.rowIndex === 1) {
+      tr.querySelectorAll('input').forEach(input => input.value = '');
+      tr.querySelectorAll('.saldo-info').forEach(span => span.innerText = '');
+      tr.querySelectorAll('input').forEach(input => input.classList.remove('is-invalid'));
+      return;
+    }
+    if (tbody.rows.length > 1) {
+      tr.remove();
+    }
+  }
+</script>
+
+<style>
+  #tabela-itens thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8f9fa;
+  }
+  #tabela-itens td, #tabela-itens th {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    vertical-align: middle;
+  }
+  .excluir-btn[style*="pointer-events:none"] {
+    opacity: 0.5 !important;
+  }
+  .d-flex.gap-2 > * {
+    margin-right: 0.25rem;
+  }
+</style>
+{% endblock %}

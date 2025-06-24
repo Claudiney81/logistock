@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Requisições Atendidas</h2>
+
+  {% if requisicoes %}
+  <table class="table table-hover table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>Status</th>
+        <th>Responsável</th>
+        <th>Técnico</th>
+        <th>Tipo de Serviço</th>
+        <th>Data/Hora</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requisicoes %}
+      <tr>
+        <td class="text-center">
+          {% if req.status == 'material_entregue' %}
+            <span title="Entregue">🧍🏻‍♂️✅</span>
+          {% endif %}
+        </td>
+        <td>{{ req.solicitante_responsavel }}</td>
+        <td>{{ req.solicitante_tecnico }}</td>
+        <td>{{ req.tipo_servico }}</td>
+        <td>{{ req.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          <a href="{{ url_for('requisicoes_tecnicos.detalhes', requisicao_id=req.id) }}" class="btn btn-sm btn-secondary">Ver Detalhes</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nenhuma requisição atendida até o momento.</p>
+  {% endif %}
+</div>
+{% endblock %}

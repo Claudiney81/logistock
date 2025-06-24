@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Detalhes do Kit Inicial</h2>
+  <div class="mb-3">
+    <b>Nome do Kit:</b> {{ kit.nome_kit }}<br>
+    <b>Técnico:</b> {{ kit.tecnico_rel.nome if kit.tecnico_rel else '' }}<br>
+    <b>Tipo de Serviço:</b> {{ kit.tipo_servico_rel.nome if kit.tipo_servico_rel else '' }}<br>
+    <b>Data/Hora:</b> {{ kit.data_hora.strftime('%d/%m/%Y %H:%M') }}<br>
+    <b>Observação:</b> {{ kit.observacao }}
+  </div>
+  <h5>Itens do Kit</h5>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Descrição</th>
+        <th>Unidade</th>
+        <th>Quantidade</th>
+        <th>Valor Unitário</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in kit.itens_rel %}
+      <tr>
+        <td>{{ item.item_rel.codigo }}</td>
+        <td>{{ item.item_rel.descricao }}</td>
+        <td>{{ item.item_rel.unidade }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ '%.2f'|format(item.valor_unitario) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{{ url_for('kit_inicial.historico_kits') }}" class="btn btn-secondary">Voltar ao Histórico</a>
+</div>
+{% endblock %}

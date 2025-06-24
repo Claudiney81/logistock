@@ -1,0 +1,47 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Técnicos Cadastrados</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %}
+  <div>
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} mt-2">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %} {% endwith %}
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Matrícula/Login</th>
+        <th>CPF</th>
+        <th>Telefone</th>
+        <th>Email</th>
+        <th>Área Técnica</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tecnico in tecnicos %}
+      <tr>
+        <td>{{ tecnico.nome }}</td>
+        <td>{{ tecnico.matricula }}</td>
+        <td>{{ tecnico.cpf }}</td>
+        <td>{{ tecnico.telefone or '-' }}</td>
+        <td>{{ tecnico.email or '-' }}</td>
+        <td>{{ tecnico.area_tecnica or '-' }}</td>
+        <td>{{ tecnico.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" class="text-center text-muted">
+          Nenhum técnico cadastrado.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Cadastro de Itens</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- Formulário de cadastro manual compacto -->
+  <form
+    method="POST"
+    action="{{ url_for('estoque.cadastrar_item') }}"
+    enctype="multipart/form-data"
+  >
+    <div class="row g-3 align-items-end">
+      <div class="col-md-2">
+        <label for="codigo" class="form-label">Código do Item</label>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          name="codigo"
+          required
+        />
+      </div>
+      <div class="col-md-3">
+        <label for="descricao" class="form-label">Descrição</label>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          name="descricao"
+          required
+        />
+      </div>
+      <div class="col-md-2">
+        <label for="unidade" class="form-label">Unidade</label>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          name="unidade"
+          required
+        />
+      </div>
+      <div class="col-md-2">
+        <label for="tipo_servico_id" class="form-label">Tipo de Serviço</label>
+        <select
+          name="tipo_servico_id"
+          class="form-select form-select-sm"
+          required
+        >
+          <option value="">Selecione</option>
+          {% for tipo in tipos_servico %}
+          <option value="{{ tipo.id }}">{{ tipo.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="valor" class="form-label">Valor (R$)</label>
+        <input
+          type="number"
+          step="0.01"
+          class="form-control form-control-sm"
+          name="valor"
+          required
+        />
+      </div>
+      <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary btn-sm">Cadastrar</button>
+      </div>
+    </div>
+  </form>
+
+  <hr />
+
+  <!-- Formulário de importação via Excel -->
+  <h3>Importar Itens via Arquivo Excel</h3>
+  <form
+    method="POST"
+    action="{{ url_for('estoque.importar_itens') }}"
+    enctype="multipart/form-data"
+  >
+    <div class="mb-3">
+      <label for="arquivo_excel" class="form-label">
+        Arquivo Excel
+        <span
+          data-bs-toggle="tooltip"
+          data-bs-placement="right"
+          title="O arquivo deve conter colunas: Código, Descrição, Unidade, Tipo de Serviço, Valor"
+          style="cursor: pointer; color: blue"
+          >[?]</span
+        >
+      </label>
+      <input
+        type="file"
+        class="form-control"
+        name="arquivo"
+        accept=".xlsx"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-success">Importar</button>
+  </form>
+</div>
+
+<!-- Ativação de tooltips do Bootstrap -->
+<script>
+  var tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  );
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+</script>
+{% endblock %}

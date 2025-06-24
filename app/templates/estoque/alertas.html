@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2>Alertas de Estoque Baixo</h2>
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Código</th>
+        <th>Descrição</th>
+        <th>Tipo de Serviço</th>
+        <th>Unidade</th>
+        <th>Valor (R$)</th>
+        <th>Estoque Atual</th>
+        <th>Mínimo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if resultados %} {% for estoque, item, tipo_servico in resultados %}
+      <tr>
+        <td>{{ item.codigo }}</td>
+        <td>{{ item.descricao }}</td>
+        <td>{{ tipo_servico.nome }}</td>
+        <td>{{ item.unidade }}</td>
+        <td>{{ "%.2f"|format(item.valor) }}</td>
+        <td class="text-danger fw-bold">{{ estoque.quantidade }}</td>
+        <td>{{ estoque.quantidade_minima }}</td>
+      </tr>
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="7" class="text-center">Nenhum item crítico no estoque.</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

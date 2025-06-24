@@ -1,0 +1,82 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4"><i class="bi bi-speedometer2"></i> Painel de Controle</h2>
+
+  <div class="row g-4">
+    <!-- Atalho: Cadastro de Itens -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-primary">
+        <div class="card-body text-center">
+          <i class="bi bi-box-seam fs-1 text-primary"></i>
+          <h5 class="card-title mt-2">Cadastro de Itens</h5>
+          <a
+            href="{{ url_for('estoque.cadastro') }}"
+            class="btn btn-outline-primary mt-2 w-100"
+            >Acessar</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalho: Saldo de Estoque -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-success">
+        <div class="card-body text-center">
+          <i class="bi bi-graph-up fs-1 text-success"></i>
+          <h5 class="card-title mt-2">Saldo de Estoque</h5>
+          <a
+            href="{{ url_for('estoque.saldo_estoque') }}"
+            class="btn btn-outline-success mt-2 w-100"
+            >Ver Estoque</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalho: Nova Nota Fiscal -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-warning">
+        <div class="card-body text-center">
+          <i class="bi bi-file-earmark-plus fs-1 text-warning"></i>
+          <h5 class="card-title mt-2">Nova Nota Fiscal</h5>
+          <a
+            href="{{ url_for('nota_fiscal.nova_nota') }}"
+            class="btn btn-outline-warning mt-2 w-100"
+            >Nova Entrada</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalho: Empresas/Parceiros -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-info">
+        <div class="card-body text-center">
+          <i class="bi bi-buildings fs-1 text-info"></i>
+          <h5 class="card-title mt-2">Empresas / Parceiros</h5>
+          <a
+            href="{{ url_for('empresas.lista_empresas') }}"
+            class="btn btn-outline-info mt-2 w-100"
+            >Visualizar</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalho: Requisições Recebidas -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-secondary">
+        <div class="card-body text-center">
+          <i class="bi bi-inbox fs-1 text-secondary"></i>
+          <h5 class="card-title mt-2">Requisições Recebidas</h5>
+          <a
+            href="{{ url_for('estoque.listar_requisicoes_recebidas') }}"
+            class="btn btn-outline-secondary mt-2 w-100"
+            >Acessar</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
