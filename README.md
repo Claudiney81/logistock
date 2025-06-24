@@ -67,5 +67,7 @@ gerar banco
 python create_db.py
 
 nome='Admin',
-...     email='admin@example.com',
-...     senha_hash=generate_password_hash('senha123'),
+... email='admin@example.com',
+... senha_hash=generate_password_hash('senha123'),
+
+# LogiStock atualizado
